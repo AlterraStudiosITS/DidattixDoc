@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Configurazione - Didattix docs</title>
+    <title>Guida all'uso - Didattix docs</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Configurazione";
-        var mkdocs_page_input_path = "configuration.md";
+        var mkdocs_page_name = "Guida all\u0027uso";
+        var mkdocs_page_input_path = "usage.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -51,14 +51,18 @@
                 <li class="toctree-l1"><a class="reference internal" href="../installation/">Installazione</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Configurazione</a>
-    <ul class="current">
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configurazione</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../usage/">Guida all'uso</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Guida all'uso</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#utente-admin">Utente ADMIN</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#modifica-della-password">Modifica della password</a>
+    </li>
+    </ul>
                 </li>
               </ul>
       </div>
@@ -75,7 +79,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Configurazione</li>
+      <li class="breadcrumb-item active">Guida all'uso</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -84,29 +88,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>Didattix dispona anche in una configurazione in JavaScript facile e intuibile da capire, tale configurazione la puoi trovare facilente in <code>C:\xampp\htdocs\Didattix\private\config</code> ed è strutturata come segue.</p>
-<pre><code class="language-js">const CONFIG = {
-    calendar: {
-        locale: &quot;it&quot;, //&quot;en&quot;, &quot;fr&quot;, &quot;es&quot; etc.
+                <h1 id="guida-aulluso">Guida aull'uso</h1>
+<p>Questa sezione delinea le procedure per l'accesso e l'utilizzo delle funzionalità principali del sistema con particolare attenzione ai diversi profili di utenza.</p>
+<h2 id="utente-admin">Utente ADMIN</h2>
+<p>L'accesso al sistema avviene tramite l'interfaccia di login. Per garantire la massima sicurezza e funzionalità, è essenziale comprendere le credenziali di primo accesso e la successiva gestione.</p>
+<p>Il sistema di default all'avvio del servizio web, qualora non fosse presente tra gli utenti, creerà un utente predefinito che definisce l'amministratore del servizio, quest'ultimo non farà altro che gestire l'esistenza degli utenti e classi, spetterà ai vari profili docenti dover gestire eventuali presenze, ammonizioni e valutazioni.</p>
+<p><strong>NOTA: è vivamente consigliato di modificare le credenziali dell'amministratore creato e proteggerle con dati più sicuri e robusti.</strong></p>
+<h2 id="modifica-della-password">Modifica della password</h2>
+<p>Modificare la password è fondamentale per una protezione migliore dell'amministratore principale del servizio, per modificarlo basta semplicemente navigare nella directory <code>private/php/database.php</code> e trovare questa sezione, che si trova facilmente tra le prime righe:</p>
+<pre><code class="language-php">if($stmt-&gt;num_rows == 0){
+    $url_address  = &quot;admin.didattix.it&quot;;
+    $password     = &quot;admin123&quot;;
+    $user_type    = &quot;Amministratore&quot;;
+    $linked_email = &quot;codewithfil@gmail.com&quot;;
+    $date         = date(&quot;Y-m-d H:i:s&quot;);
 
-        schoolStart: &quot;15-09-2024&quot;,
-        schoolEnd: &quot;30-07-2025&quot;, //10-06-2025
-        dateFormat: &quot;d-m-Y&quot;,
-    }
-};
+    $username_admin_enc = encrypt($username_admin);
+    $password_hashed    = password_hash($password, PASSWORD_DEFAULT);
+    $linked_email_enc   = encrypt($linked_email);
+    $url_address_enc    = encrypt($url_address);
+    $date_enc           = encrypt($date);
+
+    $insert_stmt = $conn-&gt;prepare(&quot;INSERT INTO users (url_address, nome, password, user_type, linked_email, date) VALUES(?, ?, ?, ?, ?, ?)&quot;);
+    $insert_stmt-&gt;bind_param(&quot;ssssss&quot;, $url_address_enc, $username_admin_enc, $password_hashed, $user_type,$linked_email_enc, $date_enc);
+
+    if(!$insert_stmt-&gt;execute()) echo &quot;Error creating ADMIN user: &quot; . $insert_stmt-&gt;error;
+
+    $insert_stmt-&gt;close();
+}
 </code></pre>
-<h2 id="spiegazione">Spiegazione</h2>
-<p>All’interno del progetto è presente un oggetto JavaScript denominato CONFIG, utilizzato per definire le impostazioni principali del calendario scolastico e il formato delle date. Questo oggetto permette di modificare facilmente parametri come periodo dell’anno scolastico e formato della data senza intervenire direttamente sul codice dell’applicazione. Si noti che il "locale" non gestisce alcun linguaggio testuale all'interno del sito ed è possibile modificarlo direttamente da codice e possono essere condirate implementazioni future.</p>
-<p><code>locale</code>: definisce la lingua utilizzata dal calendario per la formattazione delle date, dei nomi dei mesi e dei giorni della settimana. Valori accettati includono codici standard come: <code>it</code>, <code>en</code>, <code>fr</code>, <code>es</code> e qualsiasi altra lingua supportata dalla libreria del calendario.</p>
-<p><code>schoolStart</code>: indica la data di inizio dell’anno scolastico. Il valore deve essere fornito come stringa nel formato specificato da <code>dateFormat</code>, un esempio potrebbe essere "<strong>15-09-2024</strong>" come già configurato di default; il sistema utilizza questa data per generare il calendario scolastico e limitare la selezione delle date alle sole giornate valide dell’anno, così facendo impedirà anche tutte le funzionalità del registro al di fuori delle date configurate.</p>
-<p><code>schoolEnd</code>: rappresenta la data di fine dell’anno scolastico, che funziona allo stesso modo di <code>schoolStart</code>.</p>
-<p><code>dateFormat</code>: imposta il formato generale delle date utilizzato dal calendario; nel progetto viene impiegato il formato <code>"d-m-Y"</code> → giorno-mese-anno. Valori utilizzabili dipendono da Flatpickr, la libreria che gestisce il calendario.</p>
+<p>Modificare quindi <code>$password</code>; effettuate le modifiche eliminare l'utente dalla tabella <code>users</code>, riavviare il servizio web e accedere con nome utente <strong>ADMIN</strong> e usare la password modificata. L'indirizzo di autenticazione rimane tale. Una volta autenticato con le nuove credenziali potrete usufruire dei privilegi concessi dall'utente amministratore.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../installation/" class="btn btn-neutral float-left" title="Installazione"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../usage/" class="btn btn-neutral float-right" title="Guida all'uso">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../configuration/" class="btn btn-neutral float-left" title="Configurazione"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -127,10 +143,8 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../configuration/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../usage/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
